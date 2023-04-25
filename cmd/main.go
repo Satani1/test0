@@ -28,7 +28,7 @@ func main() {
 	//connect to database
 
 	retry.ForeverSleep(2*time.Second, func(attempt int) error {
-		addr := fmt.Sprintf("postgres://%s:%s@localhost:5432/%s?sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
+		addr := fmt.Sprintf("postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 		repo, err := db.NewPostgres(addr)
 		if err != nil {
 			log.Println(err)
@@ -38,6 +38,12 @@ func main() {
 		return nil
 	})
 	defer db.Close()
+
+	result, err := db.ListTable()
+	if err != nil {
+		App.ErrorLog.Fatalln(err)
+	}
+	App.InfoLog.Println(result)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

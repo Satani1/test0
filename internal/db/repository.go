@@ -8,7 +8,7 @@ import (
 type Repository interface {
 	Close()
 	InsertRow(ctx context.Context, order models.Order) error
-	ListTable(ctx context.Context) ([]models.Order, error)
+	ListTable() ([]testData, error)
 }
 
 var impl Repository
@@ -25,6 +25,6 @@ func InsertRow(ctx context.Context, order models.Order) error {
 	return impl.InsertRow(ctx, order)
 }
 
-func ListTabe(ctx context.Context) ([]models.Order, error) {
-	return impl.ListTable(ctx)
+func ListTable() ([]testData, error) {
+	return impl.ListTable()
 }
