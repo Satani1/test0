@@ -3,23 +3,41 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/tinrab/retry"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"test0/internal"
+	"test0/internal/db"
 	"time"
 )
 
 func main() {
 	App := internal.NewApplication()
-
+	cfg := LoadEnvVariables()
 	srv := http.Server{
-		Addr:     App.Addr,
+		Addr:     cfg.ServerAddress,
 		ErrorLog: App.ErrorLog,
 		Handler:  App.Routes(),
 	}
 
-	App.InfoLog.Printf("Launch server on %s", App.Addr)
+	App.InfoLog.Printf("Launch server on %s", srv.Addr)
+
+	//connect to database
+
+	retry.ForeverSleep(2*time.Second, func(attempt int) error {
+		addr := fmt.Sprintf("postgres://%s:%s@localhost:5432/%s?sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
+		repo, err := db.NewPostgres(addr)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		db.SetRepository(repo)
+		return nil
+	})
+	defer db.Close()
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
