@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
@@ -74,5 +75,25 @@ func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "Application/json")
 	w.WriteHeader(http.StatusOK)
+
+}
+
+func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
+	var params db.CreateOrder
+
+	if err := json.NewDecoder(r.Body).Decode(&params.Data); err != nil {
+		app.ErrorLog.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err := db.InsertRow(context.Background(), params)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 
 }

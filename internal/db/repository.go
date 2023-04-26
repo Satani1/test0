@@ -7,7 +7,7 @@ import (
 
 type Repository interface {
 	Close()
-	InsertRow(ctx context.Context, order models.Order) error
+	InsertRow(ctx context.Context, orderParams CreateOrder) error
 	GetOrder(id string) (*models.Order, error)
 }
 
@@ -21,8 +21,8 @@ func Close() {
 	impl.Close()
 }
 
-func InsertRow(ctx context.Context, order models.Order) error {
-	return impl.InsertRow(ctx, order)
+func InsertRow(ctx context.Context, orderParams CreateOrder) error {
+	return impl.InsertRow(ctx, orderParams)
 }
 
 func GetOrder(id string) (*models.Order, error) {
