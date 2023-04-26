@@ -16,7 +16,8 @@ func (app *Application) Routes() *mux.Router {
 		w.WriteHeader(http.StatusOK)
 	})
 	rMux.HandleFunc("/", app.RenderIndex)
-	rMux.HandleFunc("/order", app.RenderOrder)
+	rMux.HandleFunc("/order/{order_uid}", app.RenderOrder)
+	rMux.HandleFunc("/test", app.GetOrder)
 
 	fileServer := http.FileServer(http.Dir("./web"))
 

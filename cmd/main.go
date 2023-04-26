@@ -39,12 +39,6 @@ func main() {
 	})
 	defer db.Close()
 
-	result, err := db.ListTable()
-	if err != nil {
-		App.ErrorLog.Fatalln(err)
-	}
-	App.InfoLog.Println(result)
-
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			App.ErrorLog.Fatalln(err)

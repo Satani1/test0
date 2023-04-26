@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	_ "github.com/lib/pq"
 	"test0/internal/models"
 )
@@ -33,35 +32,12 @@ func (pr *PostgresRepository) InsertRow(ctx context.Context, order models.Order)
 	return nil
 }
 
-type testData struct {
-	id    int
-	uid   string
-	order models.Order
-}
-
-func (pr *PostgresRepository) ListTable() ([]testData, error) {
-	query := `select * from "modelDB".test2`
-
-	rows, err := pr.db.Query(query)
+func (pr *PostgresRepository) GetOrder(id string) (*models.Order, error) {
+	query := `select data from "modelDB".test where order_uid = $1`
+	var order models.Order
+	err := pr.db.QueryRow(query, id).Scan(&order)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	data := []testData{}
-
-	for rows.Next() {
-		d := testData{}
-		err := rows.Scan(&d.id, &d.uid, &d.order)
-		if err != nil {
-			fmt.Println("error", err)
-			continue
-		}
-		data = append(data, d)
-	}
-
-	for _, d := range data {
-		fmt.Println(d.id, d.uid, d.order)
-	}
-
-	return nil, nil
+	return &order, nil
 }
