@@ -63,18 +63,6 @@
             <td>{{.Entry}}</td>
         </tr>
         <tr>
-            <th>Delivery:</th>
-            <td>{{.Delivery}}</td>
-        </tr>
-        <tr>
-            <th>Payment:</th>
-            <td>{{.Payment}}</td>
-        </tr>
-        <tr>
-            <th>Items:</th>
-            <td>{{.Items}}</td>
-        </tr>
-        <tr>
             <th>Locale:</th>
             <td>{{.Locale}}</td>
         </tr>
@@ -106,12 +94,138 @@
             <th>oof Shard:</th>
             <td>{{.OofShard}}</td>
         </tr>
-
-
-
-
-
     </table>
+
+    <h2>Delivery</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <td>{{.Delivery.Name}}</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>{{.Delivery.Phone}}</td>
+        </tr>
+        <tr>
+            <th>Zip</th>
+            <td>{{.Delivery.Zip}}</td>
+        </tr>
+        <tr>
+            <th>City</th>
+            <td>{{.Delivery.City}}</td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td>{{.Delivery.Address}}</td>
+        </tr>
+        <tr>
+            <th>Region</th>
+            <td>{{.Delivery.Region}}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{.Delivery.Email}}</td>
+        </tr>
+    </table>
+
+    <h2>Payment</h2>
+    <table>
+        <tr>
+            <th>Transaction:</th>
+            <td>{{.Payment.Transaction}}</td>
+        </tr>
+        <tr>
+            <th>RequestID</th>
+            <td>{{.Payment.RequestID}}</td>
+        </tr>
+        <tr>
+            <th>Currency</th>
+            <td>{{.Payment.Currency}}</td>
+        </tr>
+        <tr>
+            <th>Provider</th>
+            <td>{{.Payment.Provider}}</td>
+        </tr>
+        <tr>
+            <th>Amount</th>
+            <td>{{.Payment.Amount}}</td>
+        </tr>
+        <tr>
+            <th>PaymentDT</th>
+            <td>{{.Payment.PaymentDT}}</td>
+        </tr>
+        <tr>
+            <th>Bank</th>
+            <td>{{.Payment.Bank}}</td>
+        </tr>
+        <tr>
+            <th>Delivery Cost</th>
+            <td>{{.Payment.DeliveryCost}}</td>
+        </tr>
+        <tr>
+            <th>Goods Total</th>
+            <td>{{.Payment.GoodsTotal}}</td>
+        </tr>
+        <tr>
+            <th>Custom Fee</th>
+            <td>{{.Payment.CustomFee}}</td>
+        </tr>
+    </table>
+
+    <h2>Items</h2>
+
+        {{range $index, $element := .Items}}
+            <table>
+                <tr>
+                    <th>ChrtID:</th>
+                    <td>{{ $element.ChrtID }}</td>
+                </tr>
+                <tr>
+                    <th>Track Number:</th>
+                    <td>{{ $element.TrackNumber }}</td>
+                </tr>
+                <tr>
+                    <th>Price:</th>
+                    <td>{{ $element.Price }}</td>
+                </tr>
+                <tr>
+                    <th>Rid:</th>
+                    <td>{{ $element.Rid }}</td>
+                </tr>
+                <tr>
+                    <th>Name:</th>
+                    <td>{{ $element.Name }}</td>
+                </tr>
+                <tr>
+                    <th>Sale:</th>
+                    <td>{{ $element.Sale }}</td>
+                </tr>
+                <tr>
+                    <th>Size:</th>
+                    <td>{{ $element.Size }}</td>
+                </tr>
+                <tr>
+                    <th>Total Price:</th>
+                    <td>{{ $element.TotalPrice }}</td>
+                </tr>
+                <tr>
+                    <th>Nm ID:</th>
+                    <td>{{ $element.NmID }}</td>
+                </tr>
+                <tr>
+                    <th>Brand:</th>
+                    <td>{{ $element.Brand }}</td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td>{{ $element.Status }}</td>
+                </tr>
+            </table>
+        {{end}}
+
+
+
+
 </div>
 </body>
 </html>

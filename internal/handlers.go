@@ -36,7 +36,7 @@ func (app *Application) RenderOrder(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		params := mux.Vars(r)
 		order_uid := params["order_uid"]
-		w.Header().Set("Content-Type", "text/html")
+
 		orderData, err := db.GetOrder(order_uid)
 		if err != nil {
 			app.ErrorLog.Println(err)
@@ -44,6 +44,7 @@ func (app *Application) RenderOrder(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Header().Set("Content-Type", "text/html")
 		ts, err := template.ParseFiles("./web/html/order.html")
 		if err != nil {
 			app.ErrorLog.Println(err)
