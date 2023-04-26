@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"test0/internal/models"
 )
@@ -31,13 +30,14 @@ func (pr *PostgresRepository) Close() {
 }
 
 type CreateOrder struct {
-	Data json.RawMessage `json:"data"`
+	OrderUID string          `json:"order_uid"`
+	Data     json.RawMessage `json:"data"`
 }
 
 func (pr *PostgresRepository) InsertRow(ctx context.Context, orderParams CreateOrder) error {
 	query := `INSERT INTO "modelDB".test (order_uid, data) values ($1,$2)`
-	id := uuid.New()
-	_, err := pr.db.Exec(query, id.String(), orderParams.Data)
+
+	_, err := pr.db.Exec(query, orderParams.OrderUID, orderParams.Data)
 	if err != nil {
 		return err
 	}

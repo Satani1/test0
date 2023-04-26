@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"net/http"
 	"test0/internal/db"
@@ -79,7 +80,9 @@ func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	var params db.CreateOrder
+	params := db.CreateOrder{
+		OrderUID: uuid.New().String(),
+	}
 
 	if err := json.NewDecoder(r.Body).Decode(&params.Data); err != nil {
 		app.ErrorLog.Println(err)
@@ -94,6 +97,12 @@ func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
+	if _, err := w.Write([]byte("Order was created with ID: " + params.OrderUID)); err != nil {
+		app.ErrorLog.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 }
