@@ -11,6 +11,9 @@ type Config struct {
 	PostgresDB       string `mapstucture:"POSTGRES_DB"`
 	PostgresUser     string `mapstucture:"POSTGRES_USER"`
 	PostgresPassword string `mapstucture:"POSTGRES_PASSWORD"`
+	ClusterID        string `mapstucture:"CLUSTER_ID"`
+	ClientID         string `mapstucture:"CLIENT_ID"`
+	NatsURL          string `mapstucture:"NATS_URL"`
 }
 
 func LoadEnvVariables() *Config {
