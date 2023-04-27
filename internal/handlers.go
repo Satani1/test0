@@ -1,11 +1,10 @@
 package internal
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/nats-io/stan.go"
 	"net/http"
 	"test0/internal/db"
 	"text/template"
@@ -14,13 +13,10 @@ import (
 func (app *Application) RenderIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		orderUID := r.FormValue("order_uid")
-		http.Redirect(w, r, "/order/"+orderUID, http.StatusSeeOther)
-	} else {
-		if r.URL.Path != "/" {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
 
+		url := "/order/" + orderUID
+		http.Redirect(w, r, url, http.StatusSeeOther)
+	} else {
 		ts, err := template.ParseFiles("./web/html/index.html")
 		if err != nil {
 			app.ErrorLog.Println(err)
@@ -80,9 +76,7 @@ func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	params := db.CreateOrder{
-		OrderUID: uuid.New().String(),
-	}
+	var params db.CreateOrder
 
 	if err := json.NewDecoder(r.Body).Decode(&params.Data); err != nil {
 		app.ErrorLog.Println(err)
@@ -90,12 +84,23 @@ func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.InsertRow(context.Background(), params)
+	//err := db.InsertRow(context.Background(), params)
+	//if err != nil {
+	//	app.ErrorLog.Println(err)
+	//	http.Error(w, err.Error(), http.StatusInternalServerError)
+	//	return
+	//}
+	//
+
+	sc, err := stan.Connect("test-cluster", "client-124", stan.NatsURL("nats://localhost:6060"))
 	if err != nil {
-		app.ErrorLog.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		app.ErrorLog.Println("cant connect stan", err)
 	}
+
+	if err := sc.Publish("orders", params.Data); err != nil {
+		app.ErrorLog.Println("Cant publish msg", err)
+	}
+	defer sc.Close()
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
