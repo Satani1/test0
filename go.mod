@@ -7,8 +7,8 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/lib/pq v1.10.8
 	github.com/nats-io/stan.go v0.10.4
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/viper v1.15.0
-	github.com/tinrab/retry v1.0.0
 )
 
 require (

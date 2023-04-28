@@ -12,35 +12,34 @@ import (
 	"os"
 	"os/signal"
 	"test0/internal"
+	"test0/internal/cache"
 	"test0/internal/db"
 	"time"
 )
 
 func main() {
-	App := internal.NewApplication()
 	cfg := LoadEnvVariables()
-	srv := http.Server{
-		Addr:     cfg.ServerAddress,
-		ErrorLog: App.ErrorLog,
-		Handler:  App.Routes(),
-	}
-
-	App.InfoLog.Printf("Launch server on %s", srv.Addr)
 
 	//connect to database
 	addr := fmt.Sprintf("postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 	repo, err := db.NewPostgres(addr)
 	if err != nil {
-		App.ErrorLog.Println(err)
+		log.Println(err)
 		return
 	}
 	db.SetRepository(repo)
 	defer db.Close()
 
+	//cache
+	CacheMemoryApp := cache.NewCache(5*time.Minute, 10*time.Minute)
+
+	if err := CacheMemoryApp.Restore(); err != nil {
+		log.Println("Cat restore memory in cache", err)
+	}
 	//connect to stan
 	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(cfg.NatsURL), stan.MaxPubAcksInflight(1000))
 	if err != nil {
-		App.ErrorLog.Println("cant connect to stan", err)
+		log.Println("cant connect to stan", err)
 
 	}
 
@@ -48,15 +47,22 @@ func main() {
 		//insert data from message into cash and postgres
 		err := InsertDataFromMessage(msg.Data)
 		if err != nil {
-			App.ErrorLog.Println("cant insert message in repo", err)
+			log.Println("cant insert message in repo", err)
 		}
 		fmt.Printf("Received a message: %s\n", string(msg.Data))
 	}, stan.DeliverAllAvailable(), stan.DurableName("my-durable"))
 	if err != nil {
-		App.ErrorLog.Println("Cant subscribe to channel", err)
+		log.Println("Cant subscribe to channel", err)
 
 	}
-
+	//application setup
+	App := internal.NewApplication(*CacheMemoryApp)
+	srv := http.Server{
+		Addr:     cfg.ServerAddress,
+		ErrorLog: App.ErrorLog,
+		Handler:  App.Routes(),
+	}
+	log.Printf("Launch server on %s", srv.Addr)
 	//running http server
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

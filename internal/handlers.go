@@ -62,9 +62,13 @@ func (app *Application) RenderOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
-	orderData, err := db.GetOrder("b563feb7b2b84b6test")
+	//orderData, err := db.GetOrder("b563feb7b2b84b6test")
+	//if err != nil {
+	//	app.ErrorLog.Fatalln(err)
+	//}
+	orderData, err := app.AppCache.GetOrder("b563feb7b2b84b6test")
 	if err != nil {
-		app.ErrorLog.Fatalln(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	if err := json.NewEncoder(w).Encode(orderData); err != nil {
@@ -77,7 +81,6 @@ func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var params db.CreateOrder
-
 	if err := json.NewDecoder(r.Body).Decode(&params.Data); err != nil {
 		app.ErrorLog.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -92,11 +95,12 @@ func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	//}
 	//
 
+	//connect to stan
 	sc, err := stan.Connect("test-cluster", "client-124", stan.NatsURL("nats://localhost:6060"))
 	if err != nil {
 		app.ErrorLog.Println("cant connect stan", err)
 	}
-
+	//publish message with order data
 	if err := sc.Publish("orders", params.Data); err != nil {
 		app.ErrorLog.Println("Cant publish msg", err)
 	}

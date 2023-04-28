@@ -53,3 +53,24 @@ func (pr *PostgresRepository) GetOrder(id string) (*models.Order, error) {
 	}
 	return &order, nil
 }
+
+func (pr *PostgresRepository) GetAllOrders() ([]models.Order, error) {
+	query := `select data from "modelDB".test`
+	var orders []models.Order
+
+	rows, err := pr.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var order models.Order
+		err := rows.Scan(&order)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
+}

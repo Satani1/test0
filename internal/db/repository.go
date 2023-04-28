@@ -9,6 +9,7 @@ type Repository interface {
 	Close()
 	InsertRow(ctx context.Context, orderParams CreateOrder) error
 	GetOrder(id string) (*models.Order, error)
+	GetAllOrders() ([]models.Order, error)
 }
 
 var impl Repository
@@ -27,4 +28,8 @@ func InsertRow(ctx context.Context, orderParams CreateOrder) error {
 
 func GetOrder(id string) (*models.Order, error) {
 	return impl.GetOrder(id)
+}
+
+func GetAllOrders() ([]models.Order, error) {
+	return impl.GetAllOrders()
 }
