@@ -12,12 +12,14 @@ import (
 	"os"
 	"os/signal"
 	"test0/internal"
-	"test0/internal/cache"
+	mCache "test0/internal/cache"
 	"test0/internal/db"
+	"test0/internal/models"
 	"time"
 )
 
 func main() {
+	//read environmental variables
 	cfg := LoadEnvVariables()
 
 	//connect to database
@@ -30,9 +32,9 @@ func main() {
 	db.SetRepository(repo)
 	defer db.Close()
 
-	//cache
-	CacheMemoryApp := cache.NewCache(5*time.Minute, 10*time.Minute)
-
+	//cache memory create
+	CacheMemoryApp := mCache.NewCache(5*time.Minute, 10*time.Minute)
+	//restore all orders data in cache memory
 	if err := CacheMemoryApp.Restore(); err != nil {
 		log.Println("Cat restore memory in cache", err)
 	}
@@ -42,10 +44,10 @@ func main() {
 		log.Println("cant connect to stan", err)
 
 	}
-
+	//subscribe to channel "orders"
 	_, err = sc.Subscribe("orders", func(msg *stan.Msg) {
 		//insert data from message into cash and postgres
-		err := InsertDataFromMessage(msg.Data)
+		err := InsertDataFromMessage(msg.Data, CacheMemoryApp)
 		if err != nil {
 			log.Println("cant insert message in repo", err)
 		}
@@ -55,7 +57,7 @@ func main() {
 		log.Println("Cant subscribe to channel", err)
 
 	}
-	//application setup
+	//application and server setup
 	App := internal.NewApplication(*CacheMemoryApp)
 	srv := http.Server{
 		Addr:     cfg.ServerAddress,
@@ -88,19 +90,24 @@ func main() {
 	App.InfoLog.Printf("Server closing...")
 }
 
-func InsertDataFromMessage(data []byte) error {
+func InsertDataFromMessage(data []byte, c *mCache.CacheMemory) error {
 	log.Println("insert data in db")
 	var or db.CreateOrder
 	err := json.Unmarshal(data, &or)
 	if err != nil {
 		return err
 	}
-
 	co := db.CreateOrder{
 		OrderUID: uuid.New().String(),
 		Data:     data,
 	}
-	fmt.Println(co.OrderUID)
+	//save to cache
+	var order models.Order
+	if err := json.Unmarshal(co.Data, &order); err != nil {
+		return err
+	}
+	c.Put(co.OrderUID, order)
+	//save to db
 	if err = db.InsertRow(context.Background(), co); err != nil {
 		return err
 	}
