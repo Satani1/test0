@@ -5,7 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nats-io/stan.go"
 	"net/http"
-	"test0/internal/db"
+	"test0/internal/models"
 	"text/template"
 )
 
@@ -51,6 +51,13 @@ func (app *Application) RenderOrder(w http.ResponseWriter, r *http.Request) {
 		orderData, err := app.AppCache.GetOrder(order_uid)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		var order models.Order
+
+		if err := json.Unmarshal(orderData, &order); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		//find html template
@@ -62,7 +69,7 @@ func (app *Application) RenderOrder(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		//execute html template with order data
-		err = ts.Execute(w, orderData)
+		err = ts.Execute(w, order)
 		if err != nil {
 			app.ErrorLog.Println(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -95,7 +102,7 @@ func (app *Application) GetOrder(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	//read json data from request and place it to an order struct
-	var params db.CreateOrder
+	var params models.CreateOrder
 	if err := json.NewDecoder(r.Body).Decode(&params.Data); err != nil {
 		app.ErrorLog.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -33,11 +33,12 @@ func main() {
 	defer db.Close()
 
 	//cache memory create
-	CacheMemoryApp := mCache.NewCache(5*time.Minute, 10*time.Minute)
+	CacheMemoryApp := mCache.NewCache(0*time.Minute, 0*time.Minute)
 	//restore all orders data in cache memory
 	if err := CacheMemoryApp.Restore(); err != nil {
 		log.Println("Cat restore memory in cache", err)
 	}
+	log.Println(CacheMemoryApp.Cache.ItemCount())
 	//connect to stan
 	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(cfg.NatsURL), stan.MaxPubAcksInflight(1000))
 	if err != nil {
@@ -92,12 +93,12 @@ func main() {
 
 func InsertDataFromMessage(data []byte, c *mCache.CacheMemory) error {
 	log.Println("insert data in db")
-	var or db.CreateOrder
+	var or models.CreateOrder
 	err := json.Unmarshal(data, &or)
 	if err != nil {
 		return err
 	}
-	co := db.CreateOrder{
+	co := models.CreateOrder{
 		OrderUID: uuid.New().String(),
 		Data:     data,
 	}

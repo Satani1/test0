@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	_ "github.com/lib/pq"
 	"test0/internal/models"
 )
@@ -29,12 +28,7 @@ func (pr *PostgresRepository) Close() {
 	pr.db.Close()
 }
 
-type CreateOrder struct {
-	OrderUID string          `json:"order_uid"`
-	Data     json.RawMessage `json:"data"`
-}
-
-func (pr *PostgresRepository) InsertRow(ctx context.Context, orderParams CreateOrder) error {
+func (pr *PostgresRepository) InsertRow(ctx context.Context, orderParams models.CreateOrder) error {
 	query := `INSERT INTO "modelDB".test (order_uid, data) values ($1,$2)`
 
 	_, err := pr.db.Exec(query, orderParams.OrderUID, orderParams.Data)
@@ -54,9 +48,9 @@ func (pr *PostgresRepository) GetOrder(id string) (*models.Order, error) {
 	return &order, nil
 }
 
-func (pr *PostgresRepository) GetAllOrders() ([]models.Order, error) {
-	query := `select data from "modelDB".test`
-	var orders []models.Order
+func (pr *PostgresRepository) GetAllOrders() ([]models.CreateOrder, error) {
+	query := `select order_uid,data from "modelDB".test`
+	var orders []models.CreateOrder
 
 	rows, err := pr.db.Query(query)
 	if err != nil {
@@ -65,8 +59,8 @@ func (pr *PostgresRepository) GetAllOrders() ([]models.Order, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var order models.Order
-		err := rows.Scan(&order)
+		var order models.CreateOrder
+		err := rows.Scan(&order.OrderUID, &order.Data)
 		if err != nil {
 			return nil, err
 		}

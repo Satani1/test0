@@ -72,3 +72,8 @@ func (o *Order) Scan(value interface{}) error {
 
 	return json.Unmarshal(b, &o)
 }
+
+type CreateOrder struct {
+	OrderUID string          `json:"order_uid"`
+	Data     json.RawMessage `json:"data"`
+}

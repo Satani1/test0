@@ -19,8 +19,12 @@ func NewCache(timeExpiration, timeCleanUp time.Duration) *CacheMemory {
 	return &c
 }
 
-func (c *CacheMemory) Put(id string, order models.Order) {
-	c.Cache.Set(id, order, cache.DefaultExpiration)
+func (c *CacheMemory) Put(id string, order models.Order) error {
+	err := c.Cache.Add(id, order, cache.DefaultExpiration)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *CacheMemory) GetOrder(id string) (json.RawMessage, error) {
@@ -32,6 +36,21 @@ func (c *CacheMemory) GetOrder(id string) (json.RawMessage, error) {
 		}
 		return order, nil
 	}
+	//} else {
+	//	order, err := db.GetOrder(id)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	err = c.Cache.Add(id, order, cache.DefaultExpiration)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	nOrder, err := json.Marshal(order)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	return nOrder, nil
+	//}
 	return nil, errors.New("Not found order :(")
 }
 
@@ -42,7 +61,13 @@ func (c *CacheMemory) Restore() error {
 	}
 
 	for _, order := range orders {
-		c.Put(order.OrderUID, order)
+		var o models.Order
+		if err := json.Unmarshal(order.Data, &o); err != nil {
+			return err
+		}
+		if err := c.Put(order.OrderUID, o); err != nil {
+			return err
+		}
 	}
 
 	return nil
