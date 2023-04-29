@@ -107,7 +107,10 @@ func InsertDataFromMessage(data []byte, c *mCache.CacheMemory) error {
 	if err := json.Unmarshal(co.Data, &order); err != nil {
 		return err
 	}
-	c.Put(co.OrderUID, order)
+	err = c.Put(co.OrderUID, order)
+	if err != nil {
+		return err
+	}
 	//save to db
 	if err = db.InsertRow(context.Background(), co); err != nil {
 		return err
