@@ -23,8 +23,9 @@ func main() {
 	cfg := LoadEnvVariables()
 
 	//connect to database
-	addr := fmt.Sprintf("postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
-	repo, err := db.NewPostgres(addr)
+	//addr := fmt.Sprintf("postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresHost, cfg.PostgresDB)
+	repo, err := db.NewPostgres(dbURL)
 	if err != nil {
 		log.Println(err)
 		return
