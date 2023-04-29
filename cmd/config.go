@@ -8,12 +8,13 @@ import (
 
 type Config struct {
 	ServerAddress    string `mapstructure:"SERVER_ADDRESS"`
-	PostgresDB       string `mapstucture:"POSTGRES_DB"`
-	PostgresUser     string `mapstucture:"POSTGRES_USER"`
-	PostgresPassword string `mapstucture:"POSTGRES_PASSWORD"`
-	ClusterID        string `mapstucture:"CLUSTER_ID"`
-	ClientID         string `mapstucture:"CLIENT_ID"`
-	NatsURL          string `mapstucture:"NATS_URL"`
+	PostgresDB       string `mapstructure:"POSTGRES_DB"`
+	PostgresUser     string `mapstructure:"POSTGRES_USER"`
+	PostgresPassword string `mapstructure:"POSTGRES_PASSWORD"`
+	PostgresHost     string `mapstructure:"POSTGRES_HOST"`
+	ClusterID        string `mapstructure:"CLUSTER_ID"`
+	ClientID         string `mapstructure:"CLIENT_ID"`
+	NatsURL          string `mapstructure:"NATS_URL"`
 }
 
 func LoadEnvVariables() *Config {
