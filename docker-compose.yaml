@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:latest
+    env_file:
+      - ./db.env
+    volumes:
+      - ./db_dump/modelDB/test.sql:/docker-entrypoint-initdb.d/init.sql
+      - db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  nats_streaming:
+    image: nats-streaming:latest
+    container_name: nats_streaming
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  backend:
+    build: .
+    container_name: orders
+    env_file:
+      - ./app.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - nats_streaming
+
+volumes:
+  db:
+    driver: local

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/nats-io/stan.go"
 	"log"
 	"net/http"
@@ -25,6 +24,7 @@ func main() {
 	//connect to database
 	//addr := fmt.Sprintf("postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresHost, cfg.PostgresDB)
+	fmt.Println(dbURL)
 	repo, err := db.NewPostgres(dbURL)
 	if err != nil {
 		log.Println(err)
@@ -40,6 +40,7 @@ func main() {
 		log.Println("Cat restore memory in cache", err)
 	}
 	log.Println(CacheMemoryApp.Cache.ItemCount())
+
 	//connect to stan
 	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(cfg.NatsURL), stan.MaxPubAcksInflight(1000))
 	if err != nil {
@@ -53,7 +54,7 @@ func main() {
 		if err != nil {
 			log.Println("cant insert message in repo", err)
 		}
-		fmt.Printf("Received a message: %s\n", string(msg.Data))
+		fmt.Printf("Received an order: %s\n", string(msg.Data))
 	}, stan.DeliverAllAvailable(), stan.DurableName("my-durable"))
 	if err != nil {
 		log.Println("Cant subscribe to channel", err)
@@ -100,7 +101,7 @@ func InsertDataFromMessage(data []byte, c *mCache.CacheMemory) error {
 		return err
 	}
 	co := models.CreateOrder{
-		OrderUID: uuid.New().String(),
+		OrderUID: or.OrderUID,
 		Data:     data,
 	}
 	//save to cache
@@ -116,6 +117,6 @@ func InsertDataFromMessage(data []byte, c *mCache.CacheMemory) error {
 	if err = db.InsertRow(context.Background(), co); err != nil {
 		return err
 	}
-
+	log.Printf("Order with id %s was saved", co.OrderUID)
 	return nil
 }
