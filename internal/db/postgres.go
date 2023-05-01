@@ -29,7 +29,7 @@ func (pr *PostgresRepository) Close() {
 }
 
 func (pr *PostgresRepository) InsertRow(ctx context.Context, orderParams models.CreateOrder) error {
-	query := `INSERT INTO "modelDB".test (order_uid, data) values ($1,$2)`
+	query := `INSERT INTO test (order_uid, data) values ($1,$2)`
 
 	_, err := pr.db.Exec(query, orderParams.OrderUID, orderParams.Data)
 	if err != nil {
@@ -39,7 +39,7 @@ func (pr *PostgresRepository) InsertRow(ctx context.Context, orderParams models.
 }
 
 func (pr *PostgresRepository) GetOrder(id string) (*models.Order, error) {
-	query := `select data from "modelDB".test where order_uid = $1`
+	query := `select data from test where order_uid = $1`
 	var order models.Order
 	err := pr.db.QueryRow(query, id).Scan(&order)
 	if err != nil {
@@ -49,7 +49,7 @@ func (pr *PostgresRepository) GetOrder(id string) (*models.Order, error) {
 }
 
 func (pr *PostgresRepository) GetAllOrders() ([]models.CreateOrder, error) {
-	query := `select order_uid,data from "modelDB".test`
+	query := `select order_uid,data from test`
 	var orders []models.CreateOrder
 
 	rows, err := pr.db.Query(query)
