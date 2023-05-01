@@ -11,7 +11,7 @@ Requests:
 
 ### Launch service
 
-`go run ./cmd`
+`docker compose up -d --build`
 
 To access: `localhost:8080`
 
