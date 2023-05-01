@@ -24,7 +24,6 @@ func main() {
 	//connect to database
 	//addr := fmt.Sprintf("postgres://postgres:12345678@localhost:5432/postgres?sslmode=disable")
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresHost, cfg.PostgresDB)
-	fmt.Println(dbURL)
 	repo, err := db.NewPostgres(dbURL)
 	if err != nil {
 		log.Println(err)
@@ -39,7 +38,7 @@ func main() {
 	if err := CacheMemoryApp.Restore(); err != nil {
 		log.Println("Cat restore memory in cache", err)
 	}
-	log.Println(CacheMemoryApp.Cache.ItemCount())
+	log.Println("Orders in cache memory:", CacheMemoryApp.Cache.ItemCount())
 
 	//connect to stan
 	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(cfg.NatsURL), stan.MaxPubAcksInflight(1000))

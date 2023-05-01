@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 	"log"
 )
@@ -35,6 +34,5 @@ func LoadEnvVariables() *Config {
 	if err := viper.Unmarshal(&c); err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(&c)
 	return &c
 }
