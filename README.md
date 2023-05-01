@@ -8,6 +8,9 @@ Requests:
 2. `/order/{id}` POST - return page with order data by ID;
 3. `/create` POST - create order with random uID and test data;
 
+Generate Data:
+`go run ./cmd/publisher` for generate some data and publish that into 'orders' channel in nats
+
 
 ### Launch service
 
