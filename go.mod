@@ -3,7 +3,7 @@ module test0
 go 1.20
 
 require (
-	github.com/google/uuid v1.1.2
+	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/gorilla/mux v1.8.0
 	github.com/lib/pq v1.10.8
 	github.com/nats-io/stan.go v0.10.4
