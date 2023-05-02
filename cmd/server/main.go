@@ -53,7 +53,7 @@ func main() {
 		if err != nil {
 			log.Println("cant insert message in repo", err)
 		}
-		fmt.Printf("Received an order: %s\n", string(msg.Data))
+		fmt.Printf("Received an order")
 	}, stan.DeliverAllAvailable(), stan.DurableName("my-durable"))
 	if err != nil {
 		log.Println("Cant subscribe to channel", err)
@@ -93,7 +93,6 @@ func main() {
 }
 
 func InsertDataFromMessage(data []byte, c *mCache.CacheMemory) error {
-	log.Println("insert data in db")
 	var or models.CreateOrder
 	err := json.Unmarshal(data, &or)
 	if err != nil {
